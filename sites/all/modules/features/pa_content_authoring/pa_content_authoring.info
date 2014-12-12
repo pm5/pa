@@ -1,0 +1,11 @@
+name = PA Content Authoring
+description = 「保護區學習網」內容編輯設定
+core = 7.x
+package = PA
+version = 7.x-0.1
+project = pa_content_authoring
+dependencies[] = features
+dependencies[] = filter
+dependencies[] = markdown
+features[features_api][] = api:2
+features[filter][] = filtered_html
