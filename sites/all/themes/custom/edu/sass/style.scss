@@ -16,6 +16,9 @@ CSS STRUCTURE:
 /*============================================================================================*/
 /* 1.  SITE STRUCTURE and TYPOGRAPHY */
 /*============================================================================================*/
+
+@import "base";
+
 body {
 	background: #f8f8f8 url(../img/pattern.jpg) repeat;
 	font: 16px/24px "黑體繁", "微軟正黑體", Helvetica, Arial, sans-serif;
