@@ -17,8 +17,8 @@ CSS STRUCTURE:
 /* 1.  SITE STRUCTURE and TYPOGRAPHY */
 /*============================================================================================*/
 body {
-	background:#f8f8f8 url(../img/pattern.jpg) repeat;
-	font:13px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	background: #f8f8f8 url(../img/pattern.jpg) repeat;
+	font: 16px/24px "黑體繁", "微軟正黑體", Helvetica, Arial, sans-serif;
 	color: #555;
 	-webkit-font-smoothing: antialiased !important;
 }
@@ -62,6 +62,14 @@ h6 {
 }
 p {
   margin: 0 0 15px 0;
+  margin-after: 0.5em;
+  line-height: 1.7em;
+  text-align: justify;
+  text-justify: ideographic;
+  word-break: break-all;
+}
+em {
+  font-style: normal;
 }
 .col-right p {
   margin: 0 0 25px 0;
