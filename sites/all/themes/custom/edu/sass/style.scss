@@ -794,6 +794,10 @@ ul.recent_post li:last-child, ul.latest_news li:last-child{
 	padding:23px 0 0 30px;
 	margin:0;
 }
+
+.field.field-name-field-image .field-item {
+  margin-bottom: $space-content-bottom: 15px;
+}
 /*============================================================================================*/
 /* 3. COMMON */
 /*============================================================================================*/
