@@ -15,6 +15,8 @@ CSS STRUCTURE:
 /* 1.  BASE  */
 /*============================================================================================*/
 
+@import "base";
+
 .megamenu_container {
   width:1200px;
   height:44px;
@@ -58,7 +60,7 @@ CSS STRUCTURE:
   color:#fff;
   font-weight:700;
   text-transform:uppercase;
-  font-size:12px;
+  font-size: $font-size-menu-one;
     }
 
     .megamenu > li a.drop-down {
