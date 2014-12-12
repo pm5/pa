@@ -1,0 +1,11 @@
+/* */
+/* line 4, ../sass/drupal_modifications.scss */
+ul li.leaf {
+  list-style-image: none;
+  list-style-type: none;
+}
+
+/* line 9, ../sass/drupal_modifications.scss */
+li a.active {
+  color: #0088cc;
+}
