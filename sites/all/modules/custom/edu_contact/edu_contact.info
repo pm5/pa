@@ -1,0 +1,7 @@
+name = Edu Contact
+description = Edu Contact.
+package = EDU
+version = 7.x-1.0
+core = 7.x
+
+dependencies[] = contact

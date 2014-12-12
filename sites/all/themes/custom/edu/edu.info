@@ -1,0 +1,60 @@
+name 	    = Educational-Courses-College
+description = Responsive Drupal 7 Theme. Developed by Abdullah Sowailem, themeforest.net/sowailem 
+core = 7.x
+
+engine = phptemplate
+version = 1.0.0
+
+stylesheets[all][] = css/bootstrap.css
+stylesheets[all][] = css/bootstrap-responsive.css
+stylesheets[all][] = css/megamenu.css
+stylesheets[all][] = css/style.css
+stylesheets[all][] = font-awesome/css/font-awesome.css
+stylesheets[all][] = js/fancybox/source/jquery.fancybox.css
+stylesheets[screen][] = css/fullwidth.css
+stylesheets[screen][] = rs-plugin/css/settings.css
+
+scripts[] = js/jquery.js
+scripts[] = js/respond.min.js
+scripts[] = js/modernizr.custom.17475.js
+
+scripts[] = js/jquery.easing.js
+scripts[] = js/megamenu.js
+scripts[] = js/bootstrap.js
+scripts[] = js/functions.js
+scripts[] = assets/validate.js
+scripts[] = js/fancybox/source/jquery.fancybox.pack.js
+scripts[] = js/fancybox/source/helpers/jquery.fancybox-media.js
+scripts[] = js/fancy_func.js
+scripts[] = rs-plugin/js/jquery.themepunch.plugins.min.js
+scripts[] = rs-plugin/js/jquery.themepunch.revolution.min.js
+scripts[] = js/revolutio-slider-func.js
+
+; Define theme block regions.
+;Header
+regions[header]				= Header
+regions[megamenu]			= Mega Menu
+
+; Page
+regions[page_space]  		= Page Space
+regions[before_content] 	= Before Content
+regions[content] 			= Content
+regions[after_content] 		= After Content
+
+;Sidebar
+regions[sidebar_left_top] 	= Top Left Sidebar
+regions[sidebar_left] 		= Left Sidebar
+
+;Footer
+regions[footer_left] 		= Footer Box Left
+regions[footer_middel] 		= Footer Box Middel
+regions[footer_right] 		= Footer Box Right
+
+
+; Define theme setting defaults.
+
+; NOTE: Stylesheets are called via the preprocess_html function in template.php.
+
+
+; Define theme setting defaults.
+settings[breadcrumbs] = 1

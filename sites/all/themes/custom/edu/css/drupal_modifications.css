@@ -1,0 +1,8 @@
+ul li.leaf {
+	list-style-image: none;
+	list-style-type: none;
+}
+
+li a.active{
+	color: #0088cc;
+}

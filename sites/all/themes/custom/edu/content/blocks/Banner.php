@@ -1,0 +1,1 @@
+<p><a  href="all-courses" title="All courses"><img src="/sites/all/themes/custom/edu/img/banner.jpg" alt="Banner" class="img-rounded" ></a></p>

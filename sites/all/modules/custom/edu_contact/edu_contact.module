@@ -1,0 +1,539 @@
+<?php
+
+
+/**
+ * Implement hook_mail().
+ *
+ * This hook defines a list of possible e-mail templates that this module can
+ * send. Each e-mail is given a unique identifier, or 'key'.
+ *
+ * $message comes in with some standard properties already set: 'to' address,
+ * 'from' address, and a set of default 'headers' from drupal_mail(). The goal
+ * of hook_mail() is to set the message's 'subject' and 'body' properties, as
+ * well as make any adjustments to the headers that are necessary.
+ *
+ * The $params argument is an array which can hold any additional data required
+ * to build the mail subject and body; for example, user-entered form data, or
+ * some context information as to where the mail request came from.
+ *
+ * Note that hook_mail() is not actually a hook. It is only called for a single
+ * module, the module named in the first argument of drupal_mail(). So it's
+ * a callback of a type, but not a hook.
+ */
+function edu_contact_mail($key, &$message, $params) {
+  global $user;
+
+  // Each message is associated with a language, which may or may not be the
+  // current user's selected language, depending on the type of e-mail being
+  // sent. This $options array is used later in the t() calls for subject
+  // and body to ensure the proper translation takes effect.
+  $options = array(
+    'langcode' => $message['language']->language,
+  );
+
+  switch ($key) {
+    // Send a simple message from the contact form.
+    case 'plan_a_visit':
+      $message['subject'] = t('E-mail sent from @site-name', array('@site-name' => variable_get('site_name', 'Drupal')), $options);
+      // Note that the message body is an array, not a string.
+      $message['body'][] = t('@name sent you the following message:', array('@name' => $user->name), $options);
+      // Because this is just user-entered text, we do not need to translate it.
+
+      // Since user-entered text may have unintentional HTML entities in it like
+      // '<' or '>', we need to make sure these entities are properly escaped,
+      // as the body will later be transformed from HTML to text, meaning
+      // that a normal use of '<' will result in truncation of the message.
+	  $message['body'][] = t('Name').': '.check_plain($params['name_visit']).'\n\r';
+	  $message['body'][] = t('Last Name').': '.check_plain($params['lastname_visit']).'\n\r';
+	  $message['body'][] = t('Email').': '.check_plain($params['email_visit']).'\n\r';
+	  $message['body'][] = t('Phone').': '.check_plain($params['phone_visit']).'\n\r';
+	  $message['body'][] = t('Date').': '.check_plain($params['date_visit']).'\n\r';
+	  //$message['body'][] = t('Human').': '.check_plain($params['verify_visit']).'\n\r';
+      
+      break;
+  }
+}
+
+/**
+ * Sends an e-mail.
+ *
+ * @param $form_values
+ *   An array of values from the contact form fields that were submitted.
+ *   There are just two relevant items: $form_values['email'] and
+ *   $form_values['message'].
+ */
+function edu_contact_mail_send($form_values) {
+  // All system mails need to specify the module and template key (mirrored from
+  // hook_mail()) that the message they want to send comes from.
+  $module = 'edu_contact';
+  $key	  = 'plan_a_visit';
+
+  // Specify 'to' and 'from' addresses.
+  $from = variable_get('site_mail', 'admin@example.com');
+  $to   = variable_get('edu_plan_a_visit_to', 'admin@example.com');
+
+  // "params" loads in additional context for email content completion in
+  // hook_mail(). In this case, we want to pass in the values the user entered
+  // into the form, which include the message body in $form_values['message'].
+  $params = $form_values;
+
+  // The language of the e-mail. This will one of three values:
+  // * user_preferred_language(): Used for sending mail to a particular website
+  //   user, so that the mail appears in their preferred language.
+  // * global $language: Used when sending a mail back to the user currently
+  //   viewing the site. This will send it in the language they're currently
+  //   using.
+  // * language_default(): Used when sending mail to a pre-existing, 'neutral'
+  //   address, such as the system e-mail address, or when you're unsure of the
+  //   language preferences of the intended recipient.
+  //
+  // Since in our case, we are sending a message to a random e-mail address that
+  // is not necessarily tied to a user account, we will use the site's default
+  // language.
+  $language = language_default();
+
+  // Whether or not to automatically send the mail when drupal_mail() is
+  // called. This defaults to TRUE, and is normally what you want unless you
+  // need to do additional processing before drupal_mail_send() is called.
+  $send = TRUE;
+  // Send the mail, and check for success. Note that this does not guarantee
+  // message delivery; only that there were no PHP-related issues encountered
+  // while sending.
+  $result = drupal_mail($module, $key, $to, $language, $params, $from, $send);
+  if ($result['result'] == TRUE) {
+    drupal_set_message(t('Your message has been sent.'));
+  }
+  else {
+    drupal_set_message(t('There was a problem sending your message and it was not sent.'), 'error');
+  }
+
+}
+
+/**
+ * Implement hook_mail_alter().
+ *
+ * This function is not required to send an email using Drupal's mail system.
+ *
+ * Hook_mail_alter() provides an interface to alter any aspect of email sent by
+ * Drupal. You can use this hook to add a common site footer to all outgoing
+ * email, add extra header fields, and/or modify the email in anyway. HTML-izing
+ * the outgoing email is one possibility.
+ */
+function edu_contact_mail_alter(&$message) {
+  // For the purpose of this example, modify all the outgoing messages and
+  // attach a site signature. The signature will be translated to the language
+  // in which message was built.
+  $options = array(
+    'langcode' => $message['language']->language,
+  );
+
+  $signature = t("\n--\nMail altered by edu_contact module.", array(), $options);
+  if (is_array($message['body'])) {
+    $message['body'][] = $signature;
+  }
+  else {  // Some modules use the body as a string, erroneously.
+    $message['body'] .= $signature;
+  }
+}
+
+/**
+ * Implements hook_block_info()
+ * @return array
+ */
+function edu_contact_block_info() {
+  $blocks = array();
+  $blocks['edu-plan-a-visit'] = array(
+    'info' => t('Plan a visit'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+  return $blocks;
+}
+/**
+ * Implements hook_block_view()
+ * @param $delta
+ * @return array
+ */
+function edu_contact_block_view($delta) {
+  global $language;
+  $block = array();
+
+  switch ($delta) {
+	case 'edu-plan-a-visit':
+	  $block = array(
+        'title' => '<none>',
+        'content' => drupal_get_form('edu_plan_a_visit_form'),
+      );
+      break;
+	}
+	return $block;
+}
+
+/**
+ *
+ */
+function edu_plan_a_visit_form($form, &$form_state){
+	$form['name_visit'] = array(
+		'#type' => 'textfield',
+		'#required' => true,
+		'#maxlength' => 20,
+		'#title' => t('Name'),
+	);
+	$form['lastname_visit'] = array(
+		'#type' => 'textfield',
+		'#required' => true,
+		'#maxlength' => 20,
+		'#title' => t('Last Name'),
+	);
+	$form['email_visit'] = array(
+		'#type' => 'textfield',
+		'#required' => true,
+		'#maxlength' => 20,
+		'#title' => t('Email'),
+	);
+	$form['phone_visit'] = array(
+		'#type' => 'textfield',
+		'#required' => true,
+		'#maxlength' => 20,
+		'#title' => t('Phone'),
+	);
+	$form['date_visit'] = array(
+		'#type' => 'textfield',
+		'#required' => true,
+		'#maxlength' => 20,
+		'#title' => t('Select a date'),
+	);
+	$form['verify_visit'] = array(
+		'#type' => 'textfield',
+		'#required' => true,
+		'#maxlength' => 20,
+		'#title' => t(' Are you human? 3 + 1 ='),
+	);
+	$form['submit'] = array(
+		'#type' => 'submit',
+		'#value' => t('Submit'),
+	);
+	return $form;
+}
+
+/**
+ * Form validation logic for the contact form.
+ */
+function edu_plan_a_visit_form_validate($form, &$form_state) {
+  if (!valid_email_address($form_state['values']['email_visit'])) {
+    form_set_error('email_visit', t('That e-mail address is not valid.'));
+  }
+}
+
+/**
+ *
+ */
+function edu_plan_a_visit_form_submit($form, &$form_state){
+	edu_contact_mail_send($form_state['values']);
+}
+
+/**
+* Implements hook_form_contact_site_form_alter().
+* This function will add a phone number field to the site-wide contact form,
+* by implementing hook_form_FORM_ID_alter().
+*/
+function edu_contact_form_contact_site_form_alter(&$form, &$form_state, $form_id) {
+	//dsm($form);
+	// Add a last name field to the contact form.
+	$form['last_name'] = array(
+		'#type' => 'textfield',
+		'#required' => true,
+		'#maxlength' => 20,
+		'#title' => t('Last name'),
+	);
+	
+	// Add a phone number field to the contact form.
+	$form['phone'] = array(
+		'#type' => 'textfield',
+		'#required' => true,
+		'#maxlength' => 20,
+		'#title' => t('Phone'),
+	);
+	
+	$form['department'] = array(
+		'#type' => 'select',
+		'#title' => t('Select a department'),
+		'#options' => array(
+			'Administration' => t('Administration'),
+			'Admissions' => t('Admissions'),
+			'Courses' => t('Courses'),
+			'Apply' => t('Apply'),
+		),
+	);
+	
+	$form['verify_contact'] = array(
+		'#type' => 'textfield',
+		'#required' => true,
+		'#maxlength' => 20,
+		'#title' => t(' Are you human? 3 + 1 ='),		
+	);
+	
+	/*
+	$form['country'] = array(
+		'#type' => 'select',
+		'#title' => t('Country'),
+		'#options' => array(
+			'' => t('Please Select'),
+			'Afghanistan' => t('Afghanistan'),
+			'Albania' => t('Albania'),
+			'Algeria' => t('Algeria'),
+			'American Samoa' => t('American Samoa'),
+			'Andorra' => t('Andorra'),
+			'Angola' => t('Angola'),
+			'Anguilla' => t('Anguilla'),
+			'Antarctica' => t('Antarctica'),
+			'Antigua and Barbuda' => t('Antigua and Barbuda'),
+			'Argentina' => t('Argentina'),
+			'Armenia' => t('Armenia'),
+			'Aruba' => t('Aruba'),
+			'Australia' => t('Australia'),
+			'Austria' => t('Austria'),
+			'Azerbaijan' => t('Azerbaijan'),
+			'Bahamas' => t('Bahamas'),
+			'Bahrain' => t('Bahrain'),
+			'Bangladesh' => t('Bangladesh'),
+			'Barbados' => t('Barbados'),
+			'Belarus' => t('Belarus'),
+			'Belgium' => t('Belgium'),
+			'Belize' => t('Belize'),
+			'Benin' => t('Benin'),
+			'Bermuda' => t('Bermuda'),
+			'Bhutan' => t('Bhutan'),
+			'Bolivia' => t('Bolivia'),
+			'Bosnia and Herzegovina' => t('Bosnia and Herzegovina'),
+			'Botswana' => t('Botswana'),
+			'Bouvet Island' => t('Bouvet Island'),
+			'Brazil' => t('Brazil'),
+			'British Indian Ocean Territory' => t('British Indian Ocean Territory'),
+			'Brunei Darussalam' => t('Brunei Darussalam'),
+			'Bulgaria' => t('Bulgaria'),
+			'Burkina Faso' => t('Burkina Faso'),
+			'Burundi' => t('Burundi'),
+			'Cambodia' => t('Cambodia'),
+			'Cameroon' => t('Cameroon'),
+			'Canada' => t('Canada'),
+			'Cape Verde' => t('Cape Verde'),
+			'Cayman Islands' => t('Cayman Islands'),
+			'Central African Republic' => t('Central African Republic'),
+			'Chad' => t('Chad'),
+			'Chile' => t('Chile'),
+			'China' => t('China'),
+			'Christmas Island' => t('Christmas Island'),
+			'Cocos (Keeling) Islands' => t('Cocos (Keeling) Islands'),
+			'Colombia' => t('Colombia'),
+			'Comoros' => t('Comoros'),
+			'Congo' => t('Congo'),
+			'Congo, The Democratic Republic of The' => t('Congo, The Democratic Republic of The'),
+			'Cook Islands' => t('Cook Islands'),
+			'Costa Rica' => t('Costa Rica'),
+			'Croatia' => t('Croatia'),
+			'Cuba' => t('Cuba'),
+			'Cyprus' => t('Cyprus'),
+			'Czech Republic' => t('Czech Republic'),
+			'Denmark' => t('Denmark'),
+			'Djibouti' => t('Djibouti'),
+			'Dominica' => t('Dominica'),
+			'Dominican Republic' => t('Dominican Republic'),
+			'Ecuador' => t('Ecuador'),
+			'Egypt' => t('Egypt'),
+			'El Salvador' => t('El Salvador'),
+			'Equatorial Guinea' => t('Equatorial Guinea'),
+			'Eritrea' => t('Eritrea'),
+			'Estonia' => t('Estonia'),
+			'Ethiopia' => t('Ethiopia'),
+			'Falkland Islands (Malvinas)' => t('Falkland Islands (Malvinas)'),
+			'Faroe Islands' => t('Faroe Islands'),
+			'Fiji' => t('Fiji'),
+			'Finland' => t('Finland'),
+			'France' => t('France'),
+			'French Guiana' => t('French Guiana'),
+			'French Polynesia' => t('French Polynesia'),
+			'French Southern Territories' => t('French Southern Territories'),
+			'Gabon' => t('Gabon'),
+			'Gambia' => t('Gambia'),
+			'Georgia' => t('Georgia'),
+			'Germany' => t('Germany'),
+			'Ghana' => t('Ghana'),
+			'Gibraltar' => t('Gibraltar'),
+			'Greece' => t('Greece'),
+			'Greenland' => t('Greenland'),
+			'Grenada' => t('Grenada'),
+			'Guadeloupe' => t('Guadeloupe'),
+			'Guam' => t('Guam'),
+			'Guatemala' => t('Guatemala'),
+			'Guinea' => t('Guinea'),
+			'Guinea-Bissau' => t('Guinea-Bissau'),
+			'Guyana' => t('Guyana'),
+			'Haiti' => t('Haiti'),
+			'Heard Island and Mcdonald Islands' => t('Heard Island and Mcdonald Islands'),
+			'Holy See (Vatican City State)' => t('Holy See (Vatican City State)'),
+			'Honduras' => t('Honduras'),
+			'Hong Kong' => t('Hong Kong'),
+			'Hungary' => t('Hungary'),
+			'Iceland' => t('Iceland'),
+			'India' => t('India'),
+			'Indonesia' => t('Indonesia'),
+			'Iran, Islamic Republic of' => t('Iran, Islamic Republic of'),
+			'Iraq' => t('Iraq'),
+			'Ireland' => t('Ireland'),
+			'Italy' => t('Italy'),
+			'Jamaica' => t('Jamaica'),
+			'Japan' => t('Japan'),
+			'Jordan' => t('Jordan'),
+			'Kazakhstan' => t('Kazakhstan'),
+			'Kenya' => t('Kenya'),
+			'Kiribati' => t('Kiribati'),
+			'Korea, Democratic People\'S Republic of' => t('Korea, Democratic People\'S Republic of'),
+			'Korea, Republic of' => t('Korea, Republic of'),
+			'Kuwait' => t('Kuwait'),
+			'Kyrgyzstan' => t('Kyrgyzstan'),
+			'Lao People\'S Democratic Republic' => t('Lao People\'S Democratic Republic'),
+			'Latvia' => t('Latvia'),
+			'Lebanon' => t('Lebanon'),
+			'Lesotho' => t('Lesotho'),
+			'Liberia' => t('Liberia'),
+			'Libyan Arab Jamahiriya' => t('Libyan Arab Jamahiriya'),
+			'Liechtenstein' => t('Liechtenstein'),
+			'Lithuania' => t('Lithuania'),
+			'Luxembourg' => t('Luxembourg'),
+			'Macao' => t('Macao'),
+			'Macedonia, The Former Yugoslav Republic of' => t('Macedonia, The Former Yugoslav Republic of'),
+			'Madagascar' => t('Madagascar'),
+			'Malawi' => t('Malawi'),
+			'Malaysia' => t('Malaysia'),
+			'Maldives' => t('Maldives'),
+			'Mali' => t('Mali'),
+			'Malta' => t('Malta'),
+			'Marshall Islands' => t('Marshall Islands'),
+			'Martinique' => t('Martinique'),
+			'Mauritania' => t('Mauritania'),
+			'Mauritius' => t('Mauritius'),
+			'Mayotte' => t('Mayotte'),
+			'Mexico' => t('Mexico'),
+			'Micronesia, Federated States of' => t('Micronesia, Federated States of'),
+			'Moldova, Republic of' => t('Moldova, Republic of'),
+			'Monaco' => t('Monaco'),
+			'Mongolia' => t('Mongolia'),
+			'Montserrat' => t('Montserrat'),
+			'Morocco' => t('Morocco'),
+			'Mozambique' => t('Mozambique'),
+			'Myanmar' => t('Myanmar'),
+			'Namibia' => t('Namibia'),
+			'Nauru' => t('Nauru'),
+			'Nepal' => t('Nepal'),
+			'Netherlands' => t('Netherlands'),
+			'Netherlands Antilles' => t('Netherlands Antilles'),
+			'New Caledonia' => t('New Caledonia'),
+			'New Zealand' => t('New Zealand'),
+			'Nicaragua' => t('Nicaragua'),
+			'Niger' => t('Niger'),
+			'Nigeria' => t('Nigeria'),
+			'Niue' => t('Niue'),
+			'Norfolk Island' => t('Norfolk Island'),
+			'Northern Mariana Islands' => t('Northern Mariana Islands'),
+			'Norway' => t('Norway'),
+			'Oman' => t('Oman'),
+			'Pakistan' => t('Pakistan'),
+			'Palau' => t('Palau'),
+			'Palestinian' => t('Palestinian'),
+			'Panama' => t('Panama'),
+			'Papua New Guinea' => t('Papua New Guinea'),
+			'Paraguay' => t('Paraguay'),
+			'Peru' => t('Peru'),
+			'Philippines' => t('Philippines'),
+			'Pitcairn' => t('Pitcairn'),
+			'Poland' => t('Poland'),
+			'Portugal' => t('Portugal'),
+			'Puerto Rico' => t('Puerto Rico'),
+			'Qatar' => t('Qatar'),
+			'Romania' => t('Romania'),
+			'Russian Federation' => t('Russian Federation'),
+			'Rwanda' => t('Rwanda'),
+			'Saint Helena' => t('Saint Helena'),
+			'Saint Kitts and Nevis' => t('Saint Kitts and Nevis'),
+			'Saint Lucia' => t('Saint Lucia'),
+			'Saint Pierre and Miquelon' => t('Saint Pierre and Miquelon'),
+			'Saint Vincent and The Grenadines' => t('Saint Vincent and The Grenadines'),
+			'Samoa' => t('Samoa'),
+			'San Marino' => t('San Marino'),
+			'Sao Tome and Principe' => t('Sao Tome and Principe'),
+			'Saudi Arabia' => t('Saudi Arabia'),
+			'Senegal' => t('Senegal'),
+			'Seychelles' => t('Seychelles'),
+			'Sierra Leone' => t('Sierra Leone'),
+			'Singapore' => t('Singapore'),
+			'Slovakia' => t('Slovakia'),
+			'Slovenia' => t('Slovenia'),
+			'Solomon Islands' => t('Solomon Islands'),
+			'Somalia' => t('Somalia'),
+			'South Africa' => t('South Africa'),
+			'South Georgia and The South Sandwich Islands' => t('South Georgia and The South Sandwich Islands'),
+			'Spain' => t('Spain'),
+			'Sri Lanka' => t('Sri Lanka'),
+			'Sudan' => t('Sudan'),
+			'Suriname' => t('Suriname'),
+			'Svalbard and Jan Mayen' => t('Svalbard and Jan Mayen'),
+			'Swaziland' => t('Swaziland'),
+			'Sweden' => t('Sweden'),
+			'Switzerland' => t('Switzerland'),
+			'Syrian Arab Republic' => t('Syrian Arab Republic'),
+			'Taiwan, Province of China' => t('Taiwan, Province of China'),
+			'Tajikistan' => t('Tajikistan'),
+			'Tanzania, United Republic of' => t('Tanzania, United Republic of'),
+			'Thailand' => t('Thailand'),
+			'Togo' => t('Togo'),
+			'Tokelau' => t('Tokelau'),
+			'Tonga' => t('Tonga'),
+			'Trinidad and Tobago' => t('Trinidad and Tobago'),
+			'Tunisia' => t('Tunisia'),
+			'Turkey' => t('Turkey'),
+			'Turkmenistan' => t('Turkmenistan'),
+			'Turks and Caicos Islands' => t('Turks and Caicos Islands'),
+			'Tuvalu' => t('Tuvalu'),
+			'Uganda' => t('Uganda'),
+			'Ukraine' => t('Ukraine'),
+			'United Arab Emirates' => t('United Arab Emirates'),
+			'United Kingdom' => t('United Kingdom'),
+			'United States' => t('United States'),
+			'United States Minor Outlying Islands' => t('United States Minor Outlying Islands'),
+			'Uruguay' => t('Uruguay'),
+			'Uzbekistan' => t('Uzbekistan'),
+			'Vanuatu' => t('Vanuatu'),
+			'Venezuela' => t('Venezuela'),
+			'Viet Nam' => t('Viet Nam'),
+			'Virgin Islands, British' => t('Virgin Islands, British'),
+			'Virgin Islands, U.S.' => t('Virgin Islands, U.S.'),
+			'Wallis and Futuna' => t('Wallis and Futuna'),
+			'Western Sahara' => t('Western Sahara'),
+			'Yemen' => t('Yemen'),
+			'Zambia' => t('Zambia'),
+			'Zimbabwe' => t('Zimbabwe'),
+		),
+	);
+	*/
+	
+	
+	
+	
+	$form['name']['#title'] = t('Name');
+	$form['mail']['#title'] = t('Email');
+	$form['actions']['submit']['#value'] = t('Submit');
+	//unset($form['copy']);
+	/*
+	$form['subject'] = array(
+		'#type' => 'hidden',
+		'#value' => t('Message from Contact site form'),
+	);
+	*/
+	// Define the order of the top level elements on the form (include those from contact_site_form().
+	$order = array('name','last_name', 'mail', 'phone', 'subject', 'cid', 'department', 'message', 'copy', 'human', 'actions');
+
+	// Order the elements by changing their #weight property.
+	foreach($order as $key => $field) {
+		$form[$field]['#weight'] = $key;
+	}
+}
