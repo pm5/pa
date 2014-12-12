@@ -66,9 +66,9 @@ h6 {
   line-height: 24px;
 }
 p {
-  margin: 0 0 15px 0;
+  margin: 0 0 $space-content-bottom 0;
   margin-after: 0.5em;
-  line-height: 1.7em;
+  line-height: $line-height-content;
   text-align: justify;
   text-justify: ideographic;
   word-break: break-all;
@@ -85,9 +85,8 @@ em {
 /** Lists **/
 ul,
 ol {
-  padding: 0;
-  margin: 0 0 0;
-  list-style:none;
+  padding-left: 20px;
+  padding-bottom: $space-content-bottom;
 }
 ul ul,
 ul ol,
@@ -96,7 +95,7 @@ ol ul {
   margin-bottom: 0;
 }
 li {
-  line-height: 20px;
+  line-height: $line-height-content;
 }
 hr {
   margin: 20px 0;
@@ -716,7 +715,7 @@ ul.recent_post li, ul.latest_news li {
 	color:#313131;
 	list-style:none;
 	line-height:18px;
-	padding-bottom:15px;
+	padding-bottom: $space-content-bottom;
 	color:#888;
 	font-style:italic;
 }
@@ -807,11 +806,27 @@ hr.double {
   border-top: 1px solid #cedee7;
   border-bottom: 1px solid #ffffff;
 }
-ul.list_1, ul.list_2, ul.list_3, ul.list_4{ padding-bottom:15px;}
-ul.list_1 li{background:url(../img/tick_1.png) no-repeat left 3px;line-height:18px;padding-left:20px;}
-ul.list_2 li{background:url(../img/arrow_2.png) no-repeat 3px 5px;line-height:18px;padding-left:20px;}
-ul.list_3 li{background:url(../img/arrow_3.png) no-repeat 5px 7px;line-height:18px;padding-left:20px;}
-ul.list_4 li{background:url(../img/arrow_4.png) no-repeat 4px 6px;line-height:18px;padding-left:20px;}
+ul.list_1, ul.list_2, ul.list_3, ul.list_4 {
+  padding: 0 0 $space-content-bottom 0;
+  margin: 0;
+  list-style: none;
+  line-height: $line-height-content;
+  li {
+    padding-left: 20px;
+  }
+}
+ul.list_1 li {
+  background:url(../img/tick_1.png) no-repeat left 10px;
+}
+ul.list_2 li {
+  background:url(../img/arrow_2.png) no-repeat 3px 12px;
+}
+ul.list_3 li {
+  background:url(../img/arrow_3.png) no-repeat 5px 14px;
+}
+ul.list_4 li {
+  background:url(../img/arrow_4.png) no-repeat 4px 13px;
+}
 
 .borders:after,
 .borders:before {
@@ -866,7 +881,7 @@ ul.list_4 li{background:url(../img/arrow_4.png) no-repeat 4px 6px;line-height:18
 	transition: background .8s ease;
 	-webkit-transition: background .8s ease;
 	-moz-transition: background .8s ease;
-	margin-bottom:15px;
+	margin-bottom: $space-content-bottom;
 	background: #0099cc;
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
@@ -874,7 +889,7 @@ ul.list_4 li{background:url(../img/arrow_4.png) no-repeat 4px 6px;line-height:18
 
 }
 .box-style-2 img {
-  float:right; margin: 0 0 15px 20px
+  float:right; margin: 0 0 $space-content-bottom 20px
 }
 .box-style-2 h3 {
 	color: #FF9;
@@ -1098,7 +1113,7 @@ input.dateinput {
 }
 .feat i {
   position:relative;
-  padding-bottom:15px;
+  padding-bottom: $space-content-bottom;
   top:0;
   left:0;
   display:block;
@@ -1164,7 +1179,7 @@ nav, footer, #features{
   top:0;
   padding:0;
   margin:0;
-  padding-bottom:15px;
+  padding-bottom: $space-content-bottom;
 }
 .title-course ul li{padding:0;}
 
