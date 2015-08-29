@@ -53,7 +53,7 @@ function pa_resources_node_info() {
     'resource' => array(
       'name' => t('相關網站'),
       'base' => 'node_content',
-      'description' => '',
+      'description' => t('「相關網站」底下的內容。會條列在下拉式選單中。'),
       'has_title' => '1',
       'title_label' => t('Title'),
       'help' => '',
