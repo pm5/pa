@@ -104,7 +104,20 @@ $nids = array_keys($result['node']);
 $nodes = node_load_multiple($nids);
 ?>
             <?php foreach ($nodes as $node) : ?>
-            <div class="span3"><a href="/resource/<?php echo $node->nid; ?>" title="<?php echo $node->title; ?>"><i class="icon-group icon-2x"></i><?php echo $node->title; ?><?php print render(field_view_field('node', $node, 'field_image', array('label' => 'hidden'))); ?></a></div>
+            <div class="span3">
+              <a href="/resource/<?php echo $node->nid; ?>" title="<?php echo $node->title; ?>">
+                <i class="icon-group icon-2x"></i>
+                <?php echo $node->title; ?>
+                <?php echo render(field_view_field('node', $node, 'field_image', array(
+                  'label' => 'hidden',
+                  'settings' => array(
+                    'image_link' => '',
+                    'image_style' => 'pa_resource_header',
+                  ),
+                  'type' => 'image',
+                ))); ?>
+              </a>
+            </div>
             <?php endforeach; ?>
           </div>
         </div>
