@@ -23,7 +23,7 @@ function pa_courses_node_info() {
       'base' => 'node_content',
       'description' => t('「經營管理教材」的內容。'),
       'has_title' => '1',
-      'title_label' => t('Title'),
+      'title_label' => t('課程主題'),
       'help' => '',
     ),
   );

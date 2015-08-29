@@ -36,21 +36,22 @@ function pa_courses_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'body',
-    'label' => 'Body',
-    'required' => FALSE,
+    'label' => '教學重點或活動',
+    'required' => 1,
     'settings' => array(
-      'display_summary' => TRUE,
+      'display_summary' => 1,
       'text_processing' => 1,
       'user_register_form' => FALSE,
     ),
     'widget' => array(
+      'active' => 1,
       'module' => 'text',
       'settings' => array(
         'rows' => 20,
         'summary_rows' => 5,
       ),
       'type' => 'text_textarea_with_summary',
-      'weight' => 2,
+      'weight' => 3,
     ),
   );
 
@@ -76,7 +77,7 @@ function pa_courses_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'field_class_notes',
-    'label' => 'Class notes',
+    'label' => '課程筆記',
     'required' => 0,
     'settings' => array(
       'description_field' => 0,
@@ -103,7 +104,7 @@ function pa_courses_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'media_generic',
-      'weight' => 6,
+      'weight' => 7,
     ),
   );
 
@@ -115,7 +116,7 @@ function pa_courses_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'inline',
         'module' => 'taxonomy',
         'settings' => array(),
         'type' => 'taxonomy_term_reference_link',
@@ -130,7 +131,7 @@ function pa_courses_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'field_course',
-    'label' => 'Course',
+    'label' => '課程類別',
     'required' => 1,
     'settings' => array(
       'user_register_form' => FALSE,
@@ -140,7 +141,7 @@ function pa_courses_field_default_field_instances() {
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_select',
-      'weight' => 4,
+      'weight' => 5,
     ),
   );
 
@@ -152,13 +153,13 @@ function pa_courses_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'inline',
         'module' => 'number',
         'settings' => array(
           'decimal_separator' => '.',
-          'prefix_suffix' => TRUE,
+          'prefix_suffix' => 1,
           'scale' => 0,
-          'thousand_separator' => ' ',
+          'thousand_separator' => '',
         ),
         'type' => 'number_integer',
         'weight' => 5,
@@ -172,7 +173,7 @@ function pa_courses_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'field_duration',
-    'label' => 'Duration',
+    'label' => '上課時數',
     'required' => 0,
     'settings' => array(
       'max' => '',
@@ -197,7 +198,7 @@ function pa_courses_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'hidden',
         'module' => 'image',
         'settings' => array(
           'image_link' => '',
@@ -215,7 +216,7 @@ function pa_courses_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'field_image',
-    'label' => 'Image',
+    'label' => '照片或圖片',
     'required' => 0,
     'settings' => array(
       'alt_field' => 0,
@@ -236,7 +237,7 @@ function pa_courses_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'image_image',
-      'weight' => 3,
+      'weight' => 4,
     ),
   );
 
@@ -248,7 +249,7 @@ function pa_courses_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'inline',
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
@@ -263,7 +264,7 @@ function pa_courses_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'field_instructor',
-    'label' => 'Instructor',
+    'label' => '師資',
     'required' => 0,
     'settings' => array(
       'text_processing' => 0,
@@ -276,7 +277,57 @@ function pa_courses_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 5,
+      'weight' => 6,
+    ),
+  );
+
+  // Exported field_instance: 'node-lesson-field_number'
+  $field_instances['node-lesson-field_number'] = array(
+    'bundle' => 'lesson',
+    'default_value' => array(
+      0 => array(
+        'value' => 0,
+      ),
+    ),
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'number',
+        'settings' => array(
+          'decimal_separator' => '.',
+          'prefix_suffix' => TRUE,
+          'scale' => 0,
+          'thousand_separator' => ' ',
+        ),
+        'type' => 'number_integer',
+        'weight' => 10,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_number',
+    'label' => '順序',
+    'required' => 0,
+    'settings' => array(
+      'max' => '',
+      'min' => 0,
+      'prefix' => '',
+      'suffix' => '',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'number',
+      'settings' => array(),
+      'type' => 'number',
+      'weight' => 1,
     ),
   );
 
@@ -303,7 +354,7 @@ function pa_courses_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'field_prospect',
-    'label' => 'Prospect',
+    'label' => '適合學員',
     'required' => 0,
     'settings' => array(
       'text_processing' => 0,
@@ -316,87 +367,7 @@ function pa_courses_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 11,
-    ),
-  );
-
-  // Exported field_instance: 'node-lesson-field_room'
-  $field_instances['node-lesson-field_room'] = array(
-    'bundle' => 'lesson',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 6,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_room',
-    'label' => 'Room',
-    'required' => 0,
-    'settings' => array(
-      'text_processing' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'text',
-      'settings' => array(
-        'size' => 60,
-      ),
-      'type' => 'text_textfield',
-      'weight' => 9,
-    ),
-  );
-
-  // Exported field_instance: 'node-lesson-field_time'
-  $field_instances['node-lesson-field_time'] = array(
-    'bundle' => 'lesson',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 4,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_time',
-    'label' => 'Time',
-    'required' => 0,
-    'settings' => array(
-      'text_processing' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'text',
-      'settings' => array(
-        'size' => 60,
-      ),
-      'type' => 'text_textfield',
-      'weight' => 7,
+      'weight' => 10,
     ),
   );
 
@@ -408,7 +379,7 @@ function pa_courses_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'inline',
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
@@ -423,7 +394,7 @@ function pa_courses_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'field_video',
-    'label' => 'Video',
+    'label' => '課程影音',
     'required' => 0,
     'settings' => array(
       'text_processing' => 0,
@@ -436,7 +407,7 @@ function pa_courses_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 10,
+      'weight' => 9,
     ),
   );
 
@@ -727,23 +698,23 @@ function pa_courses_field_default_field_instances() {
 
   // Translatables
   // Included for use with string extractors like potx.
-  t('Body');
-  t('Class notes');
-  t('Course');
-  t('Duration');
   t('Headline');
   t('ID');
   t('Image');
-  t('Instructor');
   t('Is New?');
   t('Is online?');
   t('Level');
   t('Promote');
-  t('Prospect');
-  t('Room');
   t('Start date');
-  t('Time');
-  t('Video');
+  t('上課時數');
+  t('師資');
+  t('教學重點或活動');
+  t('照片或圖片');
+  t('課程影音');
+  t('課程筆記');
+  t('課程類別');
+  t('適合學員');
+  t('順序');
 
   return $field_instances;
 }

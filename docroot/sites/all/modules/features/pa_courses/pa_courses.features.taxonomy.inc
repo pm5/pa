@@ -10,10 +10,10 @@
 function pa_courses_taxonomy_default_vocabularies() {
   return array(
     'course' => array(
-      'name' => '課程',
+      'name' => '課程類別',
       'machine_name' => 'course',
-      'description' => '「經營管理教材」的各個課程。',
-      'hierarchy' => 0,
+      'description' => '「經營管理教材」的課程類別。',
+      'hierarchy' => 1,
       'module' => 'taxonomy',
       'weight' => 0,
       'rdf_mapping' => array(
