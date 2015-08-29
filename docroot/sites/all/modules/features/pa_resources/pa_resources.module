@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the pa_resources feature.
+ */
+
+include_once 'pa_resources.features.inc';
