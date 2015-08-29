@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * Implements hook_block_info().
+ */
+function edu_megamenu_block_info() {
+  $blocks = array();
+  $blocks['edu_megamenu'] = array(
+    'info' => t('Edu Megamenu'),
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function edu_megamenu_block_view($delta = '') {
+  if ($delta == 'edu_megamenu') {
+    return array(
+      'subject' => '',
+      'content' => build_megamenu(),
+    );
+  }
+}
+
+function build_megamenu() {
+  ob_start();
+  include "megamenu.php";
+  $result = ob_get_contents();
+  ob_end_clean();
+  return $result;
+}

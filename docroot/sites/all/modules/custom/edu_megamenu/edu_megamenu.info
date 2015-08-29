@@ -1,0 +1,6 @@
+name = Edu Megamenu
+core = 7.x
+package = EDU
+version = 7.x-1.0
+
+dependencies[] = block
