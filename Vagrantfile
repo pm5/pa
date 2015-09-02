@@ -20,7 +20,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     web.vm.provider :virtualbox do |vb|
       vb.customize [
         "modifyvm", :id,
-        "--name", "TEIA_ENW_web",
+        "--name", "drupal_web",
         "--memory", "1024"
       ]
     end
@@ -37,12 +37,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     db.vm.provider :virtualbox do |vb|
       vb.customize [
         "modifyvm", :id,
-        "--name", "TEIA_ENW_db",
+        "--name", "drupal_db",
         "--memory", "1024"
       ]
     end
     db.vm.network :private_network, ip: "192.168.10.3"
     db.vm.network :forwarded_port, guest: 3306, host: 3306
+    db.vm.network :forwarded_port, guest: 5432, host: 5432
     db.vm.network :forwarded_port, guest: 11211, host: 11211
     db.vm.synced_folder "log", "/var/log/drupal7",
       owner: "vagrant",
