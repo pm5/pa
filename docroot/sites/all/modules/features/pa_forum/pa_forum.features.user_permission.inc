@@ -17,6 +17,7 @@ function pa_forum_user_default_permissions() {
       'anonymous user' => 'anonymous user',
       'authenticated user' => 'authenticated user',
       '學員' => '學員',
+      '編輯' => '編輯',
     ),
     'module' => 'comment',
   );
@@ -35,6 +36,7 @@ function pa_forum_user_default_permissions() {
     'name' => 'administer advanced forum',
     'roles' => array(
       '網站管理者' => '網站管理者',
+      '編輯' => '編輯',
     ),
     'module' => 'advanced_forum',
   );
