@@ -21,6 +21,15 @@ function pa_forum_user_default_permissions() {
     'module' => 'comment',
   );
 
+  // Exported permission: 'administer CAPTCHA settings'.
+  $permissions['administer CAPTCHA settings'] = array(
+    'name' => 'administer CAPTCHA settings',
+    'roles' => array(
+      '網站管理者' => '網站管理者',
+    ),
+    'module' => 'captcha',
+  );
+
   // Exported permission: 'administer advanced forum'.
   $permissions['administer advanced forum'] = array(
     'name' => 'administer advanced forum',
@@ -48,6 +57,15 @@ function pa_forum_user_default_permissions() {
       '編輯' => '編輯',
     ),
     'module' => 'forum',
+  );
+
+  // Exported permission: 'administer recaptcha'.
+  $permissions['administer recaptcha'] = array(
+    'name' => 'administer recaptcha',
+    'roles' => array(
+      '網站管理者' => '網站管理者',
+    ),
+    'module' => 'recaptcha',
   );
 
   // Exported permission: 'create forum content'.
@@ -148,6 +166,15 @@ function pa_forum_user_default_permissions() {
       '討論區使用者' => '討論區使用者',
     ),
     'module' => 'comment',
+  );
+
+  // Exported permission: 'skip CAPTCHA'.
+  $permissions['skip CAPTCHA'] = array(
+    'name' => 'skip CAPTCHA',
+    'roles' => array(
+      '網站管理者' => '網站管理者',
+    ),
+    'module' => 'captcha',
   );
 
   // Exported permission: 'skip comment approval'.
