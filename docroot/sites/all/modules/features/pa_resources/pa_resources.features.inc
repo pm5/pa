@@ -21,17 +21,9 @@ function pa_resources_image_default_styles() {
 
   // Exported image style: pa_resource_header.
   $styles['pa_resource_header'] = array(
-    'name' => 'pa_resource_header',
     'label' => '相關網站圖片',
     'effects' => array(
       2 => array(
-        'label' => '縮放和裁剪',
-        'help' => '比例縮放將會保持原始圖片的寬高比，然後裁切最大邊。這通常對建立不拉伸的完美的方形縮略圖是最有用的。',
-        'effect callback' => 'image_scale_and_crop_effect',
-        'dimensions callback' => 'image_resize_dimensions',
-        'form callback' => 'image_resize_form',
-        'summary theme' => 'image_resize_summary',
-        'module' => 'image',
         'name' => 'image_scale_and_crop',
         'data' => array(
           'width' => 960,

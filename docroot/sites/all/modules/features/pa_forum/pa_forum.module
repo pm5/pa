@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the pa_forum feature.
+ */
+
+include_once 'pa_forum.features.inc';
