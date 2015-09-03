@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the PA Admin feature.
+ */
+
+include_once 'pa_admin.features.inc';
