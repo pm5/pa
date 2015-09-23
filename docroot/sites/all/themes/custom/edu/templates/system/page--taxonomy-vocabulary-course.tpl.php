@@ -105,7 +105,7 @@
 								<div class="strip-lessons">
 								<div class="row">
 									<div class="span2">
-                    <div class="box-style-one borders"><img src="<?php print file_create_url($lesson->field_image['und'][0]['uri']); ?>" alt="" class="picture"><h5><?php print $lesson->field_instructor['und'][0]['value']; ?></h5></div>
+                    <div class="box-style-one borders"><a href="/node/<?php print $lesson->nid; ?>"><img src="<?php print file_create_url($lesson->field_image['und'][0]['uri']); ?>" alt="" class="picture"><h5><?php print $lesson->field_instructor['und'][0]['value']; ?></h5></a></div>
 									</div>
 									<div class="span5">
 										<h4><?php print $lesson->title; ?></h4>
