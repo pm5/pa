@@ -99,19 +99,25 @@
 									if(!empty($nodes)):
 									foreach($nodes as $key => $node):
 										$lesson = node_load($key);
-										//dsm($lesson);
 										if($lesson):
 								?>
 								<div class="strip-lessons">
 								<div class="row">
 									<div class="span2">
-                    <div class="box-style-one borders"><a href="/node/<?php print $lesson->nid; ?>"><img src="<?php print file_create_url($lesson->field_image['und'][0]['uri']); ?>" alt="" class="picture"><h5><?php print $lesson->field_instructor['und'][0]['value']; ?></h5></a></div>
+                  <div class="box-style-one borders">
+                    <?php print t('<a href="@url"><img src="@imgUrl" alt="@instructor" class="picture"><h5>@instructor</h5></a>', array(
+                      '@url' => url('node/' . $lesson->nid),
+                      '@imgUrl' => url(file_create_url($lesson->field_image['und'][0]['uri'])),
+                      '@instructor' => $lesson->field_instructor['und'][0]['value']
+                      ));
+                    ?>
+                  </div>
 									</div>
 									<div class="span5">
 										<h4><?php print $lesson->title; ?></h4>
-										<p><?php print $lesson->body['und'][0]['value']; ?></p>
+										<p><?php print render($lesson->body); ?></p>
 										<ul class="data-lessons">
-                      <li><i class="icon-file"></i><a href="/node/<?php print $lesson->nid; ?>"><?php print t('課程內容'); ?></a></li>
+                      <li><i class="icon-file"></i><?php print t('<a href="@url">課程內容</a>', array('@url' => url('node/' . $lesson->nid))); ?></li>
 											<!-- <li><i class="icon-film"></i><a class="fancybox-media" href="<?php print $lesson->field_video['und'][0]['value']; ?>">Play video</a></li>
 											<li><i class="icon-cloud-download"></i><a href="<?php print $lesson->field_prospect['und'][0]['value']; ?>">Donwload prospect</a></li> -->
 										</ul>
