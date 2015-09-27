@@ -1,0 +1,5 @@
+name = Book export
+description = Export and import book contents using Node export.
+core = 7.x
+
+dependencies[] = node_export

@@ -1,0 +1,216 @@
+<?php
+
+$_book_export_mappings;
+$_book_export_status;
+
+/**
+ * Implements hook_menu().
+ */
+function book_export_menu() {
+  $items = array();
+  $items['admin/content/book/book_export'] = array(
+    'title' => 'Book export: import',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('book_export_import_form'),
+    // use Node export permission
+    'access callback' => 'node_export_access_import',
+    'description' => 'Import book using <em>Book export</em>.',
+    'file' => 'book_export.pages.inc',
+    'weight' => 10,
+  );
+
+  return $items;
+}
+
+function _book_export_get_new_nid($original_nid)
+{
+  global $_book_export_mappings;
+
+  if (! array_key_exists($original_nid, $_book_export_mappings['original_nid'])) {
+    return FALSE;
+  }
+  $node_uuid = $_book_export_mappings['original_nid'][$original_nid];
+  if (! array_key_exists($node_uuid, $_book_export_mappings['uuid'])
+    || ! array_key_exists('new_nid',  $_book_export_mappings['uuid'][$node_uuid]))
+  {
+    return FALSE;
+  }
+  return $_book_export_mappings['uuid'][$node_uuid]['new_nid'];
+}
+
+function _book_export_get_new_mlid($original_mlid)
+{
+  global $_book_export_mappings;
+
+  if (! array_key_exists($original_mlid, $_book_export_mappings['original_mlid'])) {
+    return FALSE;
+  }
+  $node_uuid = $_book_export_mappings['original_mlid'][$original_mlid];
+  if (! array_key_exists($node_uuid, $_book_export_mappings['uuid'])
+    || ! array_key_exists('new_mlid',  $_book_export_mappings['uuid'][$node_uuid]))
+  {
+    return FALSE;
+  }
+  return $_book_export_mappings['uuid'][$node_uuid]['new_mlid'];
+}
+
+/**
+ * Initialize book and menu ID mapping data structure.
+ */
+function _book_export_init_mappings($nodes)
+{
+  global $_book_export_mappings;
+  global $_book_export_status;
+
+  $_book_export_mappings = array(
+    'uuid' => array(),
+    'original_nid' => array(),
+    'original_mlid' => array()
+  );
+  $_book_export_status = array(
+    'success nodes' => 0,
+    'success books' => 0
+  );
+  foreach ($nodes as $node) {
+    $_book_export_mappings['uuid'][$node->uuid] = array(
+      'original_nid' => $node->nid,
+      'original_bid' => $node->book->bid,
+      'original_mlid' => $node->book->mlid
+    );
+    $_book_export_mappings['original_nid'][$node->nid] = $node->uuid;
+    $_book_export_mappings['original_mlid'][$node->book->mlid] = $node->uuid;
+  }
+}
+
+/**
+ * Remove old book and menu information.
+ */
+function _book_export_cleanup()
+{
+  global $_book_export_mappings;
+
+  $nodes_uuid = array_keys($_book_export_mappings['uuid']);
+  $existing_nids = entity_get_id_by_uuid('node', $nodes_uuid);
+  if (count($existing_nids) > 0) {
+    $result = db_query('SELECT nid, mlid FROM {book} WHERE nid IN (:nids)', array(':nids' => array_values($existing_nids)));
+    if ($result && $result->rowCount() > 0) {
+      // menu_links are re-created on insert and update so we need to delete old
+      // links
+      db_delete('menu_links')
+        ->condition('mlid', $result->fetchCol(1), 'IN')
+        ->execute();
+    }
+  }
+}
+
+/**
+ * Rebuild book and menu structure.
+ */
+function _book_export_rebuild($original_nodes)
+{
+  global $_book_export_mappings;
+
+  foreach ($original_nodes as $node) {
+    // books are create on insert but not updated on update so we need to update
+    // them
+    db_update('book')
+      ->fields(array(
+        'mlid' => $_book_export_mappings['uuid'][$node->uuid]['new_mlid']
+      ))
+      ->condition('nid', $_book_export_mappings['uuid'][$node->uuid]['new_nid'])
+      ->execute();
+    // re-created menu_links have broken relations so we need to re-create
+    // hierarchies
+    db_update('menu_links')
+      ->fields(array(
+        'plid' => _book_export_get_new_mlid($node->book->plid) ?: '0',
+        'p1' => _book_export_get_new_mlid($node->book->p1) ?: '0',
+        'p2' => _book_export_get_new_mlid($node->book->p2) ?: '0',
+        'p3' => _book_export_get_new_mlid($node->book->p3) ?: '0',
+        'p4' => _book_export_get_new_mlid($node->book->p4) ?: '0',
+        'p4' => _book_export_get_new_mlid($node->book->p4) ?: '0',
+        'p5' => _book_export_get_new_mlid($node->book->p5) ?: '0',
+        'p7' => _book_export_get_new_mlid($node->book->p7) ?: '0',
+        'p8' => _book_export_get_new_mlid($node->book->p8) ?: '0',
+        'p9' => _book_export_get_new_mlid($node->book->p9) ?: '0',
+        'depth' => $node->book->depth
+      ))
+      ->condition('mlid', _book_export_get_new_mlid($node->book->mlid))
+      ->execute();
+  }
+}
+
+/**
+ * Import a list of book nodes.
+ */
+function book_export_import_book($nodes)
+{
+  global $_book_export_mappings;
+
+  $nodes = array_filter($nodes, function ($node) {
+    return isset($node->book) && $node->book !== NULL;
+  });
+
+  if (count($nodes) === 0) {
+    return;
+  }
+
+  _book_export_init_mappings($nodes);
+
+  // rearrange nodes so that we import breadth-first from top of the books, so
+  // that bids can be used
+  usort($nodes, function ($a, $b) {
+    return $a->book->depth - $b->book->depth;
+  });
+
+  $transaction = db_transaction();
+  try {
+    _book_export_cleanup();
+
+    // must import one-by-one to use hook_node_export_after_import_alter()
+    foreach ($nodes as $node) {
+      $results = node_export_import(json_encode(array($node)));
+    }
+
+    _book_export_rebuild($nodes);
+  }
+  catch (Exception $e) {
+    $transaction->rollback();
+    watchdog_exception('node', $e);
+    throw $e;
+  }
+}
+
+/**
+ * Implements hook_node_export_node_import_alter().
+ */
+function book_export_node_export_node_import_alter(&$node, $original_node, $save)
+{
+  if ($original_node->book['bid'] === $original_node->nid) {
+    $node->book['bid'] = 'new';
+  } else {
+    $node->book['bid'] = _book_export_get_new_nid($original_node->book['bid']);
+    $node->book['menu_name'] = 'book-toc-' . $node->book['bid'];
+    $node->book['href'] = 'node/' . $node->nid;
+  }
+}
+
+/**
+ * Implements hook_node_export_after_import_alter().
+ */
+function book_export_node_export_after_import_alter($new_nodes, $used_format, $save)
+{
+  global $_book_export_mappings;
+  global $_book_export_status;
+
+  foreach ($new_nodes as $node) {
+    $_book_export_mappings['uuid'][$node->uuid]['new_nid'] = $node->nid;
+    $_book_export_mappings['uuid'][$node->uuid]['new_bid'] = $node->book['bid'];
+    $_book_export_mappings['uuid'][$node->uuid]['new_mlid'] = $node->book['mlid'];
+    $_book_export_status['success nodes']++;
+    if ($node->nid === $node->book['bid']) {
+      $_book_export_status['success books']++;
+    }
+  }
+}
+
